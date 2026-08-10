@@ -1,6 +1,6 @@
 {
   "name": "mmy-css",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A modern, lightweight, fast-loading CSS framework.",
   "main": "dist/mmy.css",
   "style": "dist/mmy.css",
