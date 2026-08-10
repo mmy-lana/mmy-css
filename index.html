@@ -110,8 +110,21 @@
   <script>
     const btn = document.getElementById('theme-toggle');
     btn.addEventListener('click', () => {
-      const isDark = document.documentElement.style.getPropertyValue('color-scheme') === 'dark';
-      document.documentElement.style.setProperty('color-scheme', isDark ? 'light' : 'dark');
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let newTheme;
+      if (currentTheme === 'dark') {
+        newTheme = 'light';
+      } else if (currentTheme === 'light') {
+        newTheme = 'dark';
+      } else {
+        newTheme = systemIsDark ? 'light' : 'dark';
+      }
+
+      html.setAttribute('data-theme', newTheme);
+      html.style.colorScheme = newTheme;
     });
   </script>
 </body>

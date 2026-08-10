@@ -129,7 +129,7 @@
  * that without abandoning the zero-JS default.
  */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0f172a;
     --surface: #1e293b;
     --text: #f8fafc;
@@ -144,4 +144,16 @@
     --primary-hover: #60a5fa;
     --primary-text: #ffffff;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-text: #ffffff;
 }
