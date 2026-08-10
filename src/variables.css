@@ -1,19 +1,133 @@
+/**
+ * ============================================================================
+ * VARIABLES.CSS — The Design Token Layer
+ * ============================================================================
+ * WHY THIS FILE EXISTS AT ALL:
+ * This is the single source of truth for every color, font, and radius value
+ * used across the framework. Every other file (reset, typography, components,
+ * layout) reads FROM these tokens instead of hardcoding raw values.
+ *
+ * WHAT BREAKS IF THIS FILE IS DELETED OR IMPORTED LAST:
+ * Every `var(--token)` reference in the other files would resolve to nothing
+ * (the "invalid at computed-value time" behavior), and properties like
+ * `color`, `background-color`, and `border-color` would fall back to their
+ * *inherited* or *initial* values — effectively making the whole framework
+ * invisible/unstyled. This is why index.css imports this file FIRST.
+ *
+ * WHY CUSTOM PROPERTIES (--var) INSTEAD OF SASS/LESS VARIABLES:
+ * Sass variables are compiled away — they don't exist at runtime. CSS custom
+ * properties are LIVE in the browser. That means:
+ *   1. A consumer of mmy-css can override `--primary` in their own stylesheet
+ *      without needing a build step or forking the framework.
+ *   2. They can be changed dynamically via JS (`el.style.setProperty(...)`)
+ *      for things like theme switchers — see the `theme-toggle` button in
+ *      index.html.
+ *   3. They cascade and can be scoped to any selector, not just :root.
+ */
+
 :root {
+  /* --------------------------------------------------------------------
+   * FONT STACKS
+   * ------------------------------------------------------------------ */
+
+  /**
+   * --font-sans: a "system font stack" — it deliberately contains NO
+   * web font names. Instead it lists each OS's native UI font in priority
+   * order:
+   *   system-ui        → modern universal keyword (most browsers, 2020+)
+   *   -apple-system     → older Safari/macOS fallback before system-ui existed
+   *   BlinkMacSystemFont → older Chrome-on-macOS fallback
+   *   'Segoe UI'        → Windows
+   *   Roboto            → Android
+   *   sans-serif        → absolute last-resort generic family
+   *
+   * WHY THIS MATTERS FOR A "< 3KB" FRAMEWORK:
+   * Shipping a custom @font-face webfont would immediately blow the size
+   * budget (fonts are usually 20-100KB+) AND add a network request that
+   * delays text rendering (FOIT/FOUT). System fonts render INSTANTLY
+   * because they're already installed on the user's device — zero bytes,
+   * zero latency, and they automatically match the OS's native look & feel.
+   */
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /**
+   * --font-mono: same philosophy, but for monospaced text (code blocks,
+   * the .font-mono utility). ui-monospace/SFMono-Regular are Apple's
+   * refined system mono fonts; Consolas is Windows'; `monospace` is the
+   * generic fallback guaranteed to exist everywhere.
+   */
   --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /**
+   * --radius: a SINGLE shared border-radius value used by .btn, .input,
+   * .card, etc. Centralizing it here means changing the "roundness"
+   * personality of the entire framework is a ONE-LINE edit instead of a
+   * find-and-replace across every component file.
+   * WHAT BREAKS IF REMOVED: every var(--radius) reference becomes invalid,
+   * and border-radius silently falls back to its initial value (0) —
+   * all rounded corners in the framework become sharp rectangles.
+   */
   --radius: 0.375rem;
 
-  --bg: #ffffff;
-  --surface: #f9fafb;
-  --text: #111827;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
+  /* --------------------------------------------------------------------
+   * LIGHT THEME COLOR TOKENS (the default / fallback palette)
+   * ------------------------------------------------------------------ */
 
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-text: #ffffff;
+  /**
+   * These 6 tokens are the entire color vocabulary of the framework.
+   * Every component references ONE of these — never a raw hex value.
+   * This indirection is what makes the @media (prefers-color-scheme: dark)
+   * block below work: components don't need their OWN dark-mode rules,
+   * because the TOKEN they reference silently changes value instead.
+   */
+  --bg: #ffffff;          /* page background */
+  --surface: #f9fafb;     /* "raised" panels — cards, table headers */
+  --text: #111827;        /* primary body text — near-black, not pure #000
+                              (pure black on white causes harsh contrast /
+                              halation for many readers; #111827 is softer) */
+  --text-muted: #6b7280;  /* secondary text — captions, .text-muted */
+  --border: #e5e7eb;      /* hairline borders on inputs, cards, tables */
+
+  --primary: #2563eb;        /* brand/action color — buttons, links */
+  --primary-hover: #1d4ed8;  /* darker shade shown on :hover for feedback */
+  --primary-text: #ffffff;   /* text color to use ON TOP of --primary
+                                 (white, because --primary is dark enough
+                                 for WCAG-acceptable contrast) */
 }
 
+/**
+ * --------------------------------------------------------------------
+ * DARK THEME — AUTOMATIC, ZERO-JAVASCRIPT
+ * --------------------------------------------------------------------
+ * WHY `@media (prefers-color-scheme: dark)` INSTEAD OF A `.dark` CLASS:
+ * `prefers-color-scheme` reads the user's OS-level preference (set in
+ * System Settings on macOS/Windows/iOS/Android). Using it means dark mode
+ * "just works" for every consumer of mmy-css with ZERO configuration and
+ * ZERO JavaScript — a huge win for a framework whose whole pitch is being
+ * lightweight and dependency-free.
+ *
+ * HOW THE OVERRIDE MECHANISM WORKS:
+ * We re-declare the SAME custom property names inside :root, but nested in
+ * this media query. CSS custom properties follow normal cascade rules, so
+ * when the media query matches, these declarations win (later + more
+ * specific context) and every `var(--bg)` etc. reference throughout the
+ * ENTIRE framework automatically resolves to the new dark value — without
+ * a single component file needing to know dark mode exists.
+ *
+ * WHAT BREAKS IF THIS BLOCK IS REMOVED:
+ * Nothing "breaks" functionally — the site just stays light-themed even
+ * for users whose OS is set to dark mode, which fails their expectation
+ * and can be visually jarring (a stark white flash) on OLED screens.
+ *
+ * NOTE ON THE MANUAL TOGGLE BUTTON (index.html):
+ * The `#theme-toggle` button in index.html sets `color-scheme` inline via
+ * JS — that's a SEPARATE mechanism (see reset.css) that tells the browser
+ * which native UI (scrollbars, form controls) to render, and does NOT
+ * override prefers-color-scheme here. A production-ready manual toggle
+ * would need a `.dark` class strategy layered on top of this — see the
+ * "Framework Evolution" notes at the end of this session for how to add
+ * that without abandoning the zero-JS default.
+ */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0f172a;
@@ -22,6 +136,10 @@
     --text-muted: #94a3b8;
     --border: #334155;
 
+    /* Primary is brightened (not just re-used) in dark mode: a color that
+       has good contrast on WHITE often looks muddy/low-contrast on a DARK
+       background. Bumping #2563eb → #3b82f6 keeps the brand color legible
+       and vibrant against the dark --bg. */
     --primary: #3b82f6;
     --primary-hover: #60a5fa;
     --primary-text: #ffffff;

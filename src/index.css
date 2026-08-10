@@ -1,3 +1,66 @@
+/**
+ * ============================================================================
+ * INDEX.CSS — The Bundle Entry Point
+ * ============================================================================
+ * This file has almost no CSS RULES of its own — its entire job is to
+ * define the IMPORT ORDER that gets fed into Lightning CSS's bundler
+ * (see package.json's `build:unminified`/`build:minified` scripts, which
+ * point at THIS file as their `--bundle` entry).
+ *
+ * WHY THE ORDER OF THESE @imports IS NOT ARBITRARY:
+ * CSS resolves cascade conflicts partly by SOURCE ORDER — when two rules
+ * have equal specificity, the one that appears LATER in the compiled
+ * output wins. Because Lightning CSS INLINES these imports (concatenates
+ * them in place at build time, per the `--bundle` flag), the order below
+ * IS the final cascade order in dist/mmy.css. Getting it wrong would
+ * silently break the framework:
+ *
+ *   1. variables.css FIRST
+ *      Defines every --token (colors, fonts, radius) at :root. Every
+ *      subsequent file references these via var(--token). CSS custom
+ *      properties resolve at COMPUTED-VALUE time, not parse time, so
+ *      technically even a var() reference used before its :root
+ *      declaration would still resolve correctly at runtime — BUT putting
+ *      tokens first is the correct MENTAL MODEL (foundation before
+ *      consumers) and avoids any theoretical edge case with duplicate/
+ *      overridden :root blocks later in the cascade.
+ *
+ *   2. reset.css SECOND
+ *      Must run before typography/components/layout because those files
+ *      assume box-sizing:border-box and zeroed margins are ALREADY in
+ *      effect. If reset.css loaded LAST, its `:where()`-scoped rules
+ *      (specificity 0,0,0) would lose to components.css's real component
+ *      rules only by luck of :where()'s zero specificity — but its
+ *      margin/padding resets on headings and text would incorrectly
+ *      override the deliberate spacing typography.css tries to set up,
+ *      since same-specificity ties go to whichever rule is LATER in
+ *      source order.
+ *
+ *   3. typography.css THIRD
+ *      Establishes text rhythm (heading sizes, paragraph spacing) that
+ *      components (cards, buttons containing text) are then built on
+ *      top of.
+ *
+ *   4. components.css FOURTH
+ *      Buttons, inputs, cards, badges, tables — the actual reusable UI
+ *      pieces, now that both the token layer and the baseline text
+ *      styles they render exist.
+ *
+ *   5. layout.css LAST
+ *      Structural utilities (.container, .grid, .flex) that ARRANGE the
+ *      components above into page layout. Conceptually the "outermost"
+ *      layer, so it's placed last.
+ *
+ * WHAT BREAKS IF THIS ORDER IS SCRAMBLED:
+ * Nothing throws a build ERROR — CSS is forgiving about import order.
+ * But subtle, hard-to-debug visual bugs appear: e.g. swapping reset.css
+ * and typography.css would make reset.css's `margin: 0` on `*` run AFTER
+ * typography's `margin-block-end: 1em` on paragraphs, silently zeroing
+ * out ALL paragraph spacing across the entire framework — a bug that's
+ * easy to introduce and easy to miss in review because both files look
+ * "correct" in isolation.
+ */
+
 @import "./variables.css";
 @import "./reset.css";
 @import "./typography.css";

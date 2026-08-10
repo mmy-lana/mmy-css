@@ -1,16 +1,87 @@
-/* Buttons */
+/**
+ * ============================================================================
+ * COMPONENTS.CSS — Reusable UI Building Blocks
+ * ============================================================================
+ * IMPORT ORDER DEPENDENCY: loads AFTER variables/reset/typography — every
+ * rule here consumes tokens from variables.css (--primary, --radius, --border,
+ * etc.) and relies on reset.css having already normalized box-sizing and
+ * form-control font inheritance. If this file were imported FIRST, all the
+ * var(--...) references would still technically work (custom property
+ * resolution doesn't depend on file order, only on cascade position at
+ * :root), but box-sizing: border-box from reset.css winning the cascade
+ * would become fragile/order-dependent — hence the enforced order in
+ * index.css.
+ *
+ * All component classes here use plain class selectors (specificity 0,1,0)
+ * — NOT :where() — because components, unlike resets, are meant to apply
+ * confidently. A consumer overriding `.btn` is expected to use an equally-
+ * specific or more specific selector of their own, which is normal/expected
+ * CSS authoring, not friction we need to engineer away.
+ */
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
 .btn {
+  /**
+   * display: inline-flex;
+   * WHY NOT plain `inline` or `inline-block`: flex enables `align-items`/
+   * `justify-content` below, which is what keeps button text/icons
+   * perfectly centered regardless of button content (text-only, icon-only,
+   * or icon+text). `inline-flex` (vs `flex`) preserves the ability to sit
+   * a button inline next to other text/buttons instead of forcing it onto
+   * its own full-width line.
+   */
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center;      /* vertical centering of button content */
+  justify-content: center;  /* horizontal centering of button content */
+
   padding: 0.5rem 1rem;
   font-weight: 500;
+
+  /* Pulls the SHARED radius token — changing --radius in variables.css
+     re-shapes every button (and every other component below) at once. */
   border-radius: var(--radius);
+
+  /**
+   * border: 1px solid transparent;
+   * WHY declare a border at all if it's invisible (transparent)?
+   * This reserves the SAME 1px of box space that .btn-outline's visible
+   * border occupies. Without this, a solid .btn (no border) would be 2px
+   * SMALLER/misaligned than a .btn-outline sitting next to it in the same
+   * .flex row, because .btn-outline's real border adds 2px of box size
+   * that box-sizing:border-box then absorbs — but ONLY if a border was
+   * already accounted for in both variants. This is the classic
+   * "phantom border" alignment trick.
+   * WHAT BREAKS IF REMOVED: .btn and .btn-outline buttons rendered next
+   * to each other (as in index.html's button row) would be visibly
+   * different heights/widths by 2px, an easy-to-miss but unprofessional
+   * looking misalignment.
+   */
   border: 1px solid transparent;
+
   background-color: var(--primary);
   color: var(--primary-text);
   cursor: pointer;
+
+  /* Needed because .btn is also used on <a href="#" class="btn"> in
+     index.html — anchor tags default to `text-decoration: underline`,
+     which we don't want on a button-styled link. */
   text-decoration: none;
+
+  /**
+   * transition: background-color 0.15s ease;
+   * WHY only background-color (not `transition: all`): transitioning
+   * `all` forces the browser to watch EVERY animatable property for
+   * changes every frame, which is measurably more expensive than
+   * watching one specific property — a meaningful performance
+   * consideration at scale (many buttons on a data-heavy page). Since the
+   * only thing that visually changes on :hover is background-color, that's
+   * the only property that needs to transition.
+   * 0.15s is intentionally SHORT — long transitions on hover feedback
+   * feel sluggish/laggy rather than "smooth."
+   */
   transition: background-color 0.15s ease;
 }
 
@@ -18,65 +89,167 @@
   background-color: var(--primary-hover);
 }
 
+/**
+ * .btn-outline — a VARIANT class, applied ALONGSIDE .btn (not instead of),
+ * e.g. `class="btn btn-outline"`. This is the same pattern Bootstrap/
+ * Bulma use: base class handles layout/shape, modifier class handles
+ * only the properties that actually differ (color scheme here).
+ */
 .btn-outline {
   background-color: transparent;
-  border-color: var(--border);
+  border-color: var(--border);  /* swaps the invisible transparent border
+                                    from .btn for a VISIBLE one — this is
+                                    only possible because .btn already
+                                    reserved the 1px of space for it */
   color: var(--text);
 }
 
 .btn-outline:hover {
+  /* Outline buttons get a subtle surface-tint hover instead of a solid
+     color swap — appropriate because they represent a lower-emphasis
+     ("secondary") action than the solid .btn. */
   background-color: var(--surface);
 }
 
-/* Form Controls */
+/* ==========================================================================
+   FORM CONTROLS
+   ========================================================================== */
+
+/**
+ * .input, .textarea, .select grouped in ONE rule (comma-separated selector)
+ * because they share ~100% identical base styling — grouping avoids
+ * repeating the same 7 declarations three times, directly serving the
+ * framework's small-file-size goal.
+ */
 .input, .textarea, .select {
-  width: 100%;
+  width: 100%;  /* form controls fill their container by default — the
+                   common case (a form laid out in a .grid column) wants
+                   full-width inputs; a consumer opts OUT with their own
+                   width rule when they want otherwise */
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background-color: var(--bg);
+  background-color: var(--bg);  /* NOT --surface — inputs sit on the base
+                                    page background by design, visually
+                                    distinguished by their border instead */
   color: var(--text);
-  outline: none;
+  outline: none;  /* removes the BROWSER'S default focus ring so we can
+                      supply our OWN, more deliberate focus indicator
+                      below (border-color change) — see the accessibility
+                      note in that rule */
 }
 
+/**
+ * ACCESSIBILITY NOTE — WHY outline: none ABOVE IS SAFE HERE:
+ * Removing the native focus outline is normally an accessibility red flag
+ * (keyboard users lose visual focus tracking) UNLESS it's immediately
+ * replaced by an equally-visible alternative — which it is, one rule
+ * below. This is only acceptable because we guarantee that replacement
+ * exists; removing outline:none WITHOUT the :focus rule below would be
+ * a genuine accessibility regression.
+ */
 .input:focus, .textarea:focus, .select:focus {
   border-color: var(--primary);
 }
 
-/* Card */
+/* ==========================================================================
+   CARD
+   ========================================================================== */
+
 .card {
   padding: 1.25rem;
   border-radius: var(--radius);
   border: 1px solid var(--border);
+
+  /* --surface (not --bg) — this is what visually LIFTS a card off the
+     page background; in light mode it's a barely-there off-white
+     (#f9fafb vs #ffffff), in dark mode it's a lighter navy than the page
+     background, giving a subtle elevation cue without needing box-shadow
+     (which costs more to paint/repaint and adds bytes). */
   background-color: var(--surface);
 }
 
-/* Badge */
+/* ==========================================================================
+   BADGE
+   ========================================================================== */
+
 .badge {
   display: inline-block;
   padding: 0.125rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
+
+  /**
+   * border-radius: 9999px;
+   * WHY 9999 INSTEAD OF var(--radius) OR 50%:
+   * This is the "pill shape" trick — border-radius clamps internally to
+   * at most half the element's shortest side, so any value LARGER than
+   * that (9999px is comically oversized on purpose) reliably produces a
+   * fully-rounded capsule/pill regardless of the badge's actual
+   * width/height. Using var(--radius) here would give badges the SAME
+   * subtle rounding as buttons/cards instead of the distinct pill shape
+   * that visually signals "badge" vs "button" at a glance. `50%` would
+   * only work correctly on a perfectly SQUARE element, which text badges
+   * of varying label length never are.
+   */
   border-radius: 9999px;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: var(--text-muted);  /* deliberately lower-emphasis than body
+                                 text — badges are metadata/labels, not
+                                 primary content */
 }
 
-/* Table */
+/* ==========================================================================
+   TABLE
+   ========================================================================== */
+
 .table {
   width: 100%;
+
+  /**
+   * border-collapse: collapse;
+   * WHY: the browser default is `border-collapse: separate`, where
+   * adjacent <td>/<th> borders are rendered as TWO separate lines with a
+   * gap between them (controlled by `border-spacing`), producing a
+   * "double border" grid look. `collapse` merges adjacent cell borders
+   * into ONE shared line — the clean, modern flat-table look almost all
+   * design systems use instead of the old Web 1.0 double-ruled grid.
+   */
   border-collapse: collapse;
-  text-align: left;
+  text-align: left;  /* browser default for <td> is actually already
+                         left-aligned, but <th> defaults to CENTER — this
+                         line normalizes header cells to match body cells,
+                         which is the expected convention in modern UI
+                         (centered headers read as old-fashioned/dated) */
 }
 
+/**
+ * .table :where(th, td)
+ * WHY :where() HERE SPECIFICALLY (unlike the rest of this file, which
+ * intentionally skips :where()): this selector reaches INSIDE consumer-
+ * provided table markup (their own <th>/<td> elements, which we don't
+ * control the classing of). Keeping specificity at effectively just
+ * `.table` (0,1,0) — because :where(th, td) contributes ZERO extra
+ * specificity — means a consumer can override individual cell styling
+ * with a plain `td { ... }` rule of their own without a specificity
+ * fight, even though our rule is nested one level deeper.
+ */
 .table :where(th, td) {
   padding: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);  /* only a BOTTOM border per
+                                               cell — combined with
+                                               border-collapse above, this
+                                               is what produces clean
+                                               horizontal-only row dividers
+                                               instead of a full grid */
 }
 
 .table th {
   font-weight: 600;
   color: var(--text-muted);
-  background-color: var(--surface);
+  background-color: var(--surface);  /* visually separates the header row
+                                         from body rows at a glance,
+                                         reinforcing the text-align reset
+                                         above */
 }

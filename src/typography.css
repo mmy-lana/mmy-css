@@ -1,24 +1,143 @@
+/**
+ * ============================================================================
+ * TYPOGRAPHY.CSS — Headings, Body Text, and Fluid Scaling
+ * ============================================================================
+ * IMPORT ORDER DEPENDENCY: loads after reset.css (so margins start at 0 and
+ * are re-introduced deliberately here) and after variables.css (consumes
+ * --text, --text-muted).
+ */
+
+/**
+ * --------------------------------------------------------------------
+ * :where(h1..h6) — shared heading rules, kept selector-specificity-zero
+ * --------------------------------------------------------------------
+ * WHY :where() HERE TOO: same reasoning as reset.css — headings are one
+ * of the MOST commonly overridden elements by consumers ("I just want my
+ * <h2> a bit bigger"). Keeping these at specificity (0,0,0) means a
+ * consumer's plain `h2 { font-size: 2rem }` (specificity (0,0,1)) will
+ * always win without needing !important.
+ */
 :where(h1, h2, h3, h4, h5, h6) {
+  /* Tighter line-height than body text (1.2 vs the body's 1.5). Large
+     text needs LESS line-height proportionally — at big font sizes,
+     1.5 line-height creates visually excessive gaps between wrapped
+     lines of a heading. 1.2 is the conventional heading value across
+     most type systems. */
   line-height: 1.2;
+
+  /* font-weight: 700 (bold) — browsers default headings to `bold`
+     already via the UA stylesheet, but that's implicit/inconsistent
+     across engines. Declaring it explicitly documents the intent and
+     guards against a consumer's reset (or a different browser default)
+     silently un-bolding headings. */
   font-weight: 700;
+
+  /* Uses the --text token (not a hardcoded color) so headings correctly
+     re-theme in dark mode along with body text. */
   color: var(--text);
 }
 
+/**
+ * --------------------------------------------------------------------
+ * FLUID TYPOGRAPHY WITH clamp()
+ * --------------------------------------------------------------------
+ * WHY clamp() INSTEAD OF FIXED rem VALUES OR MEDIA-QUERY BREAKPOINTS:
+ * `clamp(MIN, PREFERRED, MAX)` lets font-size scale CONTINUOUSLY with the
+ * viewport width, instead of jumping abruptly at fixed breakpoints
+ * (e.g. `h1 { font-size: 2rem } @media (min-width:768px) { h1{font-size:2.5rem} }`).
+ *
+ * Reading `h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); }`:
+ *   - 1.75rem = the FLOOR. Even on a tiny viewport, h1 never shrinks
+ *     below this — protects readability on small phones.
+ *   - 4vw = the PREFERRED value, calculated as 4% of the current
+ *     viewport width. This is what makes it "fluid" — it changes every
+ *     single pixel of viewport width, not just at breakpoints.
+ *   - 2.5rem = the CEILING. Even on an ultra-wide monitor, h1 never
+ *     grows past this — prevents headings from becoming absurdly huge.
+ * The browser computes 4vw, then CLAMPS it between the min and max.
+ *
+ * PERFORMANCE ANGLE (relevant since this is a size-obsessed framework):
+ * This ONE line replaces what would otherwise require several @media
+ * query blocks per heading level to achieve equivalent responsiveness —
+ * meaning clamp() DIRECTLY reduces the shipped CSS byte count, which
+ * matters for a framework marketed as "< 3KB gzipped." Fewer, denser
+ * rules also means less work for the browser's style-recalculation
+ * engine compared to re-evaluating multiple breakpoint rules on resize.
+ *
+ * WHAT BREAKS IF REPLACED WITH FIXED rem VALUES:
+ * Headings would either be too small on desktop or too large/wrapping
+ * awkwardly on mobile — you'd need to reintroduce media queries (more
+ * bytes, more rules) to approximate what clamp() does in one line.
+ */
 h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
 h2 { font-size: clamp(1.35rem, 3vw, 1.875rem); }
 h3 { font-size: clamp(1.15rem, 2vw, 1.5rem); }
+
+/* h4-h6 intentionally use FIXED rem sizes, not clamp(). WHY: at this
+   point on the scale, the visual difference between mobile and desktop
+   sizing is negligible relative to the complexity clamp() would add —
+   diminishing returns. This is a deliberate simplicity trade-off, not
+   an oversight. */
 h4 { font-size: 1.25rem; }
 h5 { font-size: 1rem; }
 h6 { font-size: 0.875rem; }
 
+/**
+ * --------------------------------------------------------------------
+ * BLOCK-LEVEL TEXT SPACING — p, ul, ol, dl, blockquote
+ * --------------------------------------------------------------------
+ */
 p, ul, ol, dl, blockquote {
+  /**
+   * margin-block-end: 1em;
+   * WHY "margin-block-end" INSTEAD OF "margin-bottom":
+   * This is a CSS LOGICAL PROPERTY. `margin-bottom` is tied to a fixed
+   * physical direction (always the bottom of the screen) regardless of
+   * writing mode. `margin-block-end` instead means "the end of the BLOCK
+   * flow direction" — in English (horizontal-tb, left-to-right) that
+   * resolves to the bottom, exactly like margin-bottom. BUT if the
+   * framework (or a consumer) sets `writing-mode: vertical-rl` for
+   * Japanese/Chinese vertical text, or `direction: rtl` for Arabic/
+   * Hebrew, margin-block-end automatically resolves to the CORRECT
+   * logical edge without any of our CSS needing to change.
+   * WHAT BREAKS IF WE USE margin-bottom INSTEAD: nothing breaks for
+   * English/LTR users, but the framework becomes NOT internationalization
+   * -ready — RTL/vertical-writing consumers would get spacing on the
+   * wrong edge of every paragraph/list, a correctness bug that's easy to
+   * avoid up-front but painful to retrofit later.
+   * (1em is used instead of a fixed rem so this spacing scales with
+   * whatever font-size context it's nested in — e.g. smaller inside a
+   * .badge, larger inside a big pull-quote.)
+   */
   margin-block-end: 1em;
 }
 
+/**
+ * WHY THIS RULE EXISTS: without it, the LAST paragraph/list inside any
+ * container (e.g. the last <p> in a .card) would still have a trailing
+ * 1em margin pushing against the container's own bottom padding —
+ * visually doubling the spacing at the bottom of cards. Zeroing the
+ * margin on :last-child removes that redundant trailing gap so a
+ * .card's padding alone controls the bottom spacing.
+ * WHAT BREAKS IF REMOVED: every .card (see components.css) with text
+ * content would look slightly bottom-heavy / inconsistently spaced
+ * compared to its top padding.
+ */
 p:last-child {
   margin-block-end: 0;
 }
 
+/**
+ * --------------------------------------------------------------------
+ * UTILITY CLASSES (typography-related single-purpose helpers)
+ * --------------------------------------------------------------------
+ * These are NOT :where()-wrapped, because utility classes are meant to be
+ * the OPPOSITE of overridable-by-default — a consumer reaching for
+ * `.text-muted` WANTS it to win reliably. A normal class selector already
+ * has low specificity (0,1,0), which is an intentional, predictable level
+ * for utilities (higher than :where() resets, lower than component-
+ * specific IDs or !important consumer overrides).
+ */
 .text-muted { color: var(--text-muted); }
 .text-center { text-align: center; }
 .font-mono { font-family: var(--font-mono); }

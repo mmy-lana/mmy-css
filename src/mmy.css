@@ -1,3 +1,46 @@
+/**
+ * ============================================================================
+ * MMY.CSS — ⚠️ ORPHANED FILE (not part of the build)
+ * ============================================================================
+ * IMPORTANT ARCHITECTURAL NOTE FOR THE MAINTAINER:
+ * This file is NOT @imported anywhere in index.css, and index.css is the
+ * only entry point Lightning CSS bundles (see package.json's
+ * `build:unminified`/`build:minified` scripts, both of which point at
+ * `src/index.css`, never at this file). That means:
+ *
+ *   - Every rule below is DEAD CODE from the published package's point of
+ *     view — it never makes it into dist/mmy.css or dist/mmy.min.css.
+ *   - It duplicates work that variables.css + reset.css already do,
+ *     under a DIFFERENT token namespace (--mmy-font-family, --mmy-primary-
+ *     color, etc. vs. the real system's --font-sans, --primary, etc.),
+ *     which is a maintenance trap: someone editing "the theme" here would
+ *     see zero effect on the actual published output and might assume
+ *     the framework is broken.
+ *
+ * LIKELY EXPLANATION: this looks like an early/first-draft scratch file
+ * from before the project was split into variables/reset/typography/
+ * components/layout — probably safe to either delete it, or repurpose it
+ * (see below).
+ *
+ * WHAT THIS FILE CURRENTLY DOES, IF IT WERE EVER IMPORTED:
+ * Sets up a small, self-contained token + reset pair, functionally
+ * overlapping with variables.css + reset.css but WITHOUT dark-mode
+ * support (no @media (prefers-color-scheme: dark) block) and without
+ * the :where()-zero-specificity technique (uses a comma-selector reset
+ * instead, giving it real specificity that's harder for consumers to
+ * override).
+ *
+ * RECOMMENDATION: either (a) delete this file entirely since it's fully
+ * superseded by variables.css/reset.css, or (b) repurpose it as a
+ * documented "minimal single-file version" of mmy-css for users who want
+ * to hand-copy a tiny reset without installing the NPM package — if you
+ * choose (b), rename it clearly (e.g. `mmy.standalone.css`) and add a
+ * comment at the top of index.html/README explaining its distinct
+ * purpose, so it doesn't look like accidental duplication to future
+ * contributors (or to you, in six months).
+ * ============================================================================
+ */
+
 /* src/mmy.css */
 
 :root {

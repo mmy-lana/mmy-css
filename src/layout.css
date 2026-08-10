@@ -1,22 +1,143 @@
+/**
+ * ============================================================================
+ * LAYOUT.CSS — Structural / Positioning Utilities
+ * ============================================================================
+ * IMPORT ORDER: loaded LAST in index.css, deliberately. Layout utilities are
+ * meant to be the "outermost" concern — they arrange components (.card,
+ * .btn, etc. from components.css) into page structure, so conceptually
+ * they sit on top of everything else. Loading order doesn't strictly change
+ * behavior here (these classes don't fight for specificity with anything
+ * above them), but the FILE ORDER documents the intended mental model:
+ * tokens → reset → type → components → layout, i.e. small/foundational to
+ * large/structural.
+ */
+
 .container {
   width: 100%;
+
+  /**
+   * max-width: 1200px;
+   * WHY: without a max-width, `width: 100%` means the container keeps
+   * growing on ultra-wide monitors (2560px+), producing uncomfortably
+   * long line-lengths of text that hurt readability (the eye has to
+   * travel too far per line). 1200px is a conventional "content well"
+   * ceiling used across most modern frameworks — wide enough for rich
+   * multi-column layouts, narrow enough to stay readable.
+   */
   max-width: 1200px;
+
+  /**
+   * margin-inline: auto;
+   * WHY "margin-inline" INSTEAD OF "margin-left/margin-right: auto":
+   * Another LOGICAL PROPERTY (see typography.css note on margin-block-end
+   * for the full explanation of the concept). `margin-inline` sets BOTH
+   * the left and right margin in one declaration AND automatically
+   * respects the page's writing direction — for RTL languages the
+   * "inline start/end" edges swap correctly, whereas margin-left/right
+   * would need to be manually flipped by the consumer for RTL support.
+   * The classic "auto auto" trick here is what HORIZONTALLY CENTERS a
+   * block-level element that has a max-width: the browser distributes
+   * all leftover horizontal space evenly to both auto margins.
+   * WHAT BREAKS IF REMOVED: .container would left-align and hug the left
+   * edge of the viewport instead of being centered, which is why every
+   * section in index.html appears centered on wide screens.
+   */
   margin-inline: auto;
+
+  /**
+   * padding-inline: 1rem;
+   * WHY: guarantees content never touches the raw edge of the viewport on
+   * small screens (where max-width:1200px isn't yet the limiting factor
+   * and .container is effectively 100vw wide) — without this, text/cards
+   * would be edge-to-edge on mobile, which looks unfinished and makes
+   * tap targets near the edges harder to reach precisely.
+   */
   padding-inline: 1rem;
 }
 
 .grid {
   display: grid;
-  gap: 1rem;
+  gap: 1rem;  /* shorthand for both row-gap and column-gap — the MODERN
+                 replacement for the old technique of margins on grid
+                 items, which required negative-margin hacks on the
+                 parent to avoid doubled edge spacing. `gap` only adds
+                 space BETWEEN items, never around the outside. */
+
+  /**
+   * grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+   * This ONE line is a fully responsive, JS-free, media-query-free grid.
+   * Breaking it down from the inside out:
+   *
+   *   min(100%, 250px)
+   *     → the SMALLER of "100% of the grid's available width" or "250px".
+   *       On a narrow mobile viewport where 100% might only be ~300px,
+   *       this correctly caps each column's minimum at whatever fits,
+   *       preventing a column from demanding 250px on a 300px-wide
+   *       screen and forcing unwanted horizontal overflow.
+   *
+   *   minmax(min(100%, 250px), 1fr)
+   *     → each column must be AT LEAST that safe minimum, but can grow
+   *       up to `1fr` (an equal share of remaining space) when there's
+   *       room. This is what makes columns stretch to fill extra space
+   *       evenly rather than staying a fixed 250px with wasted gaps.
+   *
+   *   repeat(auto-fit, ...)
+   *     → `auto-fit` tells the grid to automatically calculate HOW MANY
+   *       columns fit given the container width and the minmax rule
+   *       above, and then COLLAPSE (remove track space for) any empty
+   *       columns so the existing items stretch to fill the row. (The
+   *       alternative keyword, `auto-fill`, would instead keep empty
+   *       invisible column TRACKS reserved — `auto-fit` is almost always
+   *       the more intuitive choice for card grids like index.html's
+   *       "Card 1/2/3" example.)
+   *
+   * NET EFFECT: as the viewport shrinks, columns automatically drop from
+   * 3 → 2 → 1 per row at whatever widths make sense, with ZERO media
+   * queries and ZERO JavaScript — a huge part of how this framework stays
+   * under the 3KB budget while still being "responsive."
+   * WHAT BREAKS IF SIMPLIFIED TO A FIXED `grid-template-columns: repeat(3, 1fr)`:
+   * the grid would force exactly 3 equal columns at EVERY viewport width,
+   * causing severe squishing/unreadable text on mobile — you'd then need
+   * to reintroduce media queries (more bytes) to fix it, exactly what
+   * this one-liner avoids.
+   */
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
 }
 
 .flex {
   display: flex;
-  gap: 1rem;
+  gap: 1rem;  /* same reasoning as .grid's gap — modern spacing between
+                 flex children without margin hacks */
 }
 
+/* --------------------------------------------------------------------
+   FLEX MODIFIER UTILITIES
+   Small, single-purpose classes meant to be COMBINED with .flex, e.g.
+   `class="flex flex-col items-center"` — this is the "utility-first"
+   pattern in miniature (see the Path B roadmap notes below for how this
+   could grow into a fuller utility system).
+   -------------------------------------------------------------------- */
+
 .flex-col { flex-direction: column; }
+/* Rotates the flex axis from the default row (horizontal) to column
+   (vertical) — everything else about .flex (gap, alignment classes)
+   continues to work identically along the new axis. */
+
 .items-center { align-items: center; }
+/* Centers children along the CROSS axis (perpendicular to flex-direction)
+   — vertically in a row-flex, horizontally in a column-flex. This is why
+   it correctly vertically-centers index.html's header content without
+   needing separate row/column-specific classes. */
+
 .justify-between { justify-content: space-between; }
+/* Distributes children along the MAIN axis with maximum space pushed
+   between them (first item flush start, last item flush end) — this is
+   what pushes the "mmy-css" title to the left and the theme-toggle
+   button to the right in index.html's header, with no fixed widths or
+   floats required. */
+
 .flex-wrap { flex-wrap: wrap; }
+/* Allows flex children to WRAP onto additional lines instead of forcibly
+   shrinking to fit one line or overflowing — critical for the button/
+   badge rows in index.html, which would otherwise get uncomfortably
+   squeezed (or overflow the .card) on narrow viewports. */

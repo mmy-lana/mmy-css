@@ -1,34 +1,249 @@
+/**
+ * ============================================================================
+ * RESET.CSS — Normalizing Browser Defaults
+ * ============================================================================
+ * WHY A RESET IS NEEDED AT ALL:
+ * Every browser ships its own "user agent stylesheet" with opinionated
+ * default margins, font sizes, and box-sizing behavior (e.g. <ul> has
+ * left padding, <h1> has different sizes depending on nesting depth,
+ * <button> inherits a totally different font than the page). Without a
+ * reset, the SAME markup renders inconsistently across Chrome/Firefox/
+ * Safari, and consumers of mmy-css would fight the browser instead of
+ * building their UI.
+ *
+ * IMPORT ORDER DEPENDENCY:
+ * This file MUST load after variables.css (it consumes --font-sans, --bg,
+ * --text) and BEFORE typography.css/components.css (which assume box-sizing
+ * and margins are already normalized). See index.css for the enforced order.
+ */
+
+/**
+ * --------------------------------------------------------------------
+ * :where() — THE SPECIFICITY-ZERO SELECTOR
+ * --------------------------------------------------------------------
+ * WHY `:where(*, ::before, ::after)` INSTEAD OF PLAIN `*, ::before, ::after`:
+ * `:where()` is a CSS4 pseudo-class that matches EXACTLY like its argument
+ * selector, but its resulting specificity is always (0,0,0) — i.e. ZERO,
+ * no matter how complex the selector list inside it is.
+ *
+ * This matters enormously for a FRAMEWORK meant to be consumed by other
+ * people's projects:
+ *   - If we used the universal selector `*` directly, that's still
+ *     specificity (0,0,0) too... BUT the moment we reset something more
+ *     targeted like `:where(input, button, textarea, select)` below, a
+ *     plain (non-:where) version would carry specificity (0,1,0) — a
+ *     single class. That's LOW, but not zero, and a consumer's own base
+ *     styles (e.g. `input { font-family: serif }` at (0,0,1)) would still
+ *     LOSE to our reset in the same-specificity tie-break-by-source-order
+ *     scenario if their CSS loads first.
+ *   - By wrapping every reset rule in :where(...), we guarantee OUR reset
+ *     rules have the LOWEST possible specificity, so ANY rule the consumer
+ *     writes — even a single bare element selector — will always win when
+ *     they want to override us. This is the "specificity floor" pattern.
+ *
+ * WHAT BREAKS IF WE REMOVE :where() AND JUST USE PLAIN SELECTORS:
+ * Nothing breaks visually in THIS demo, but framework consumers would
+ * start needing !important or more specific selectors just to override
+ * basic resets like `margin: 0` on headings — a common real-world
+ * complaint with older reset libraries (e.g. old versions of normalize.css).
+ */
 :where(*, ::before, ::after) {
+  /**
+   * box-sizing: border-box
+   * WHY: the browser DEFAULT is `content-box`, where `width`/`height` only
+   * describe the content area — padding and border are added ON TOP,
+   * making an element with `width: 200px; padding: 20px; border: 1px`
+   * actually render at 242px wide. That's deeply unintuitive for layout
+   * math (especially in .grid/.flex contexts below).
+   * `border-box` makes width/height include padding+border, so
+   * `width: 200px` always means 200px on screen, period.
+   * WHAT BREAKS IF REMOVED: every component with padding+border (.btn,
+   * .input, .card) would render WIDER than its declared width, and the
+   * responsive .grid `minmax(min(100%, 250px), 1fr)` math would miscalculate,
+   * causing unwanted horizontal overflow/scrollbars on narrow viewports.
+   */
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+
+  /**
+   * margin: 0; padding: 0;
+   * WHY: browsers apply inconsistent default margins to <body>, <h1>-<h6>,
+   * <p>, <ul>/<ol> (and padding to lists). Zeroing everything here gives
+   * typography.css and components.css a predictable, IDENTICAL starting
+   * point in every browser, then those files re-introduce spacing
+   * deliberately (e.g. typography.css's `margin-block-end: 1em` on <p>)
+   * instead of inheriting arbitrary browser defaults.
+   * WHAT BREAKS IF REMOVED: headings/paragraphs would have inconsistent,
+   * browser-specific spacing, and components like .card would have
+   * unpredictable extra gaps from nested <p>/<ul> default margins bleeding
+   * through the padding.
+   */
 }
 
+/**
+ * --------------------------------------------------------------------
+ * :where(html)
+ * --------------------------------------------------------------------
+ */
 :where(html) {
+  /**
+   * color-scheme: light dark;
+   * WHY: this is a browser HINT (separate from our own --bg/--text tokens)
+   * telling the browser "this page supports BOTH light and dark rendering."
+   * The browser then automatically dark-themes NATIVE UI elements that our
+   * CSS tokens can't reach: scrollbars, the default <select> dropdown
+   * chrome, form-control focus rings, and the page's initial "flash"
+   * background before any CSS even paints.
+   * WHAT BREAKS IF REMOVED: in dark mode (prefers-color-scheme: dark),
+   * our --bg token still switches correctly, but scrollbars and native
+   * <select>/<input> chrome stay light-themed, creating a jarring
+   * light-UI-on-dark-page mismatch. This is also exactly what the
+   * `#theme-toggle` script in index.html manipulates directly via
+   * `document.documentElement.style.setProperty('color-scheme', ...)`
+   * for a manual override.
+   */
   color-scheme: light dark;
+
+  /**
+   * -webkit-text-size-adjust: none;
+   * WHY: mobile Safari/Chrome on iOS automatically BOOSTS font sizes in
+   * some layout contexts (an old "reading mode" heuristic from the early
+   * iPhone era, before responsive design was common) — this can cause
+   * text to render LARGER than the CSS actually specifies, unpredictably
+   * breaking pixel-precise layouts and clamp() calculations in
+   * typography.css.
+   * WHAT BREAKS IF REMOVED: font sizes on some mobile browsers may not
+   * exactly match the clamp()-computed values from typography.css.
+   */
   -webkit-text-size-adjust: none;
 }
 
+/**
+ * --------------------------------------------------------------------
+ * :where(body)
+ * --------------------------------------------------------------------
+ */
 :where(body) {
+  /**
+   * min-height: 100vh;
+   * WHY: guarantees the body (and therefore any background-color set on
+   * it) fills the FULL viewport height even when content is short —
+   * without this, a page with little content would show the raw white
+   * browser canvas below a short --bg-colored body, breaking the themed
+   * background in both light and dark mode.
+   */
   min-height: 100vh;
+
+  /* Baseline readable line-height — re-declared here (also set via
+     typography defaults) as a body-level default so ANY text node,
+     even ones typography.css doesn't explicitly target, inherits a
+     comfortable 1.5 line-height instead of the browser default (~1.2). */
   line-height: 1.5;
+
+  /* Pulls in the system font stack defined in variables.css — this is
+     the ONE central place font-family is set; every child element
+     inherits it via normal CSS inheritance (font-family is inherited by
+     default), so components.css/typography.css never need to redeclare
+     font-family themselves. */
   font-family: var(--font-sans);
+
+  /* Theming: pulls --bg/--text from variables.css. Because these are
+     custom properties (not hardcoded), this single declaration is what
+     makes the ENTIRE page swap themes when the dark-mode media query in
+     variables.css fires — body doesn't need its own @media block. */
   background-color: var(--bg);
   color: var(--text);
 }
 
+/**
+ * --------------------------------------------------------------------
+ * :where(img, svg, video, canvas) — "intrinsic media" reset
+ * --------------------------------------------------------------------
+ */
 :where(img, svg, video, canvas) {
+  /**
+   * display: block;
+   * WHY: these elements default to `display: inline` (or `inline-block`
+   * for img), which is a holdover from when images were treated like
+   * text characters. Inline elements have "phantom" extra space below
+   * them (reserved for descenders like the tail of a 'g') — this creates
+   * a mysterious few pixels of gap below every <img> that trips up almost
+   * every developer at some point. `display: block` removes that gap.
+   */
   display: block;
+
+  /**
+   * max-width: 100%; height: auto;
+   * WHY: prevents media from overflowing its container on narrow
+   * viewports — an <img> with a fixed native width of 1200px would
+   * otherwise force horizontal scrolling on a 375px-wide phone.
+   * `height: auto` alongside max-width preserves the image's aspect
+   * ratio as it's constrained, preventing squashing/stretching.
+   * WHAT BREAKS IF REMOVED: any oversized image/video dropped into a
+   * .card or .container by a framework consumer would blow out the
+   * layout and cause horizontal scrollbars on mobile.
+   */
   max-width: 100%;
   height: auto;
 }
 
+/**
+ * --------------------------------------------------------------------
+ * :where(input, button, textarea, select) — form-control font inheritance
+ * --------------------------------------------------------------------
+ */
 :where(input, button, textarea, select) {
+  /**
+   * font: inherit;
+   * WHY: browsers give form controls their OWN default font (often the
+   * OS's native form-control font, e.g. a different sans-serif than the
+   * page body, sometimes even a different SIZE). `font: inherit` forces
+   * these elements to instead use whatever font-family/size/weight is
+   * active on their PARENT — i.e. our --font-sans from variables.css —
+   * so a <button> or <input> visually matches the surrounding paragraph
+   * text instead of looking like a foreign OS widget.
+   * WHAT BREAKS IF REMOVED: .btn/.input/.select in components.css would
+   * render with the browser's native form-control font instead of
+   * --font-sans, breaking visual consistency (most noticeable on Firefox
+   * and older Safari where the mismatch is more pronounced).
+   */
   font: inherit;
+
+  /**
+   * color: inherit;
+   * WHY: similarly, form controls don't automatically inherit text color
+   * from their parent by default in every browser context. This ensures
+   * an <input>'s typed text respects --text (or --text on --surface,
+   * etc.) instead of defaulting to pure black, which would look wrong in
+   * dark mode.
+   */
   color: inherit;
 }
 
+/**
+ * --------------------------------------------------------------------
+ * :where(a) — link defaults
+ * --------------------------------------------------------------------
+ */
 :where(a) {
+  /* Links use the brand --primary token instead of the browser default
+     blue (#0000EE) / purple-visited, so links automatically match the
+     framework's theme and re-theme correctly in dark mode. */
   color: var(--primary);
+
+  /**
+   * text-decoration-skip-ink: auto;
+   * WHY: this is a TYPOGRAPHIC REFINEMENT (not a functional reset). By
+   * default, an underline is drawn as one continuous straight line,
+   * which visually collides with descenders (the tails on letters like
+   * g, y, p, j) making the underline look broken/messy up close.
+   * `skip-ink: auto` tells the browser to intelligently break the
+   * underline around descenders — this is the modern, high-quality
+   * default used by most professional type systems (and is actually
+   * already the BROWSER default in most modern engines — it's declared
+   * here explicitly for consistency/documentation rather than to
+   * override anything).
+   * WHAT BREAKS IF REMOVED: purely cosmetic — underlines would ignore
+   * descender collisions in browsers where 'auto' isn't already default.
+   */
   text-decoration-skip-ink: auto;
 }
