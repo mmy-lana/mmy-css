@@ -2,7 +2,6 @@
 node_modules/
 
 # Build and distribution (Ignored in Git, but built dynamically or published via `files` array in package.json)
-dist/
 build/
 
 # Logs & Debugging
