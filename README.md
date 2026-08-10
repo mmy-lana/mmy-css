@@ -7,6 +7,7 @@ A modern, ultra-lightweight CSS framework under **1.2 KB gzipped**.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![GitHub Stars](https://img.shields.io/github/stars/mmy-lana/mmy-css?style=flat-square)](https://github.com/mmy-lana/mmy-css)
 
+👉 **[View Interactive Live Demo](https://mmy-lana.github.io/mmy-css/)**
 ---
 
 ## 🌟 Why mmy-css?
