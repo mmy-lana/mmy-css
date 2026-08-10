@@ -18,9 +18,8 @@
     "README.md"
   ],
   "scripts": {
-    "build:unminified": "lightningcss --bundle --targets \">= 0.25%\" src/mmy.css -o dist/mmy.css",
-    "build:minified": "lightningcss --bundle --minify --targets \">= 0.25%\" src/mmy.css -o dist/mmy.min.css",
-    "build": "npm run build:unminified && npm run build:minified",
+    "build:unminified": "lightningcss --bundle --targets \">= 0.25%\" src/index.css -o dist/mmy.css",
+    "build:minified": "lightningcss --bundle --minify --targets \">= 0.25%\" src/index.css -o dist/mmy.min.css",    "build": "npm run build:unminified && npm run build:minified",
     "watch": "chokidar \"src/**/*.css\" -c \"npm run build\"",
     "serve": "live-server --watch=dist,index.html",
     "dev": "concurrently \"npm run watch\" \"npm run serve\"",
