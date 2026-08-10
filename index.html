@@ -3,13 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mmy-css Development Playground</title>
-  <link rel="stylesheet" href="./dist/mmy.css">
+  <title>mmy-css — Lightweight CSS Framework</title>
+  <link rel="stylesheet" href="./dist/mmy.min.css">
 </head>
 <body>
-  <main style="padding: 2rem;">
-    <h1>mmy-css Framework</h1>
-    <p>Edit styles inside <code>src/mmy.css</code> to test hot reloading.</p>
-  </main>
+  <div class="container" style="padding-block: 2rem;">
+    <!-- Header -->
+    <header class="flex justify-between items-center" style="margin-block-end: 2rem;">
+      <div class="flex items-center">
+        <h1>mmy-css</h1>
+        <span class="badge" style="margin-inline-start: 0.5rem;">&lt; 3KB gzipped</span>
+      </div>
+      <button id="theme-toggle" class="btn btn-outline">Toggle Theme</button>
+    </header>
+
+    <!-- Hero / Installation -->
+    <section class="card" style="margin-block-end: 2rem;">
+      <h2>Installation</h2>
+      <p class="text-muted" style="margin-block-end: 1rem;">Install via NPM or use the CDN link directly in your HTML.</p>
+      
+      <p><strong>NPM:</strong></p>
+      <pre class="font-mono card" style="margin-block-end: 1rem;">npm install mmy-css</pre>
+
+      <p><strong>CDN:</strong></p>
+      <pre class="font-mono card">&lt;link rel="stylesheet" href="https://unpkg.com/mmy-css/dist/mmy.min.css"&gt;</pre>
+    </section>
+
+    <!-- Typography -->
+    <section class="card" style="margin-block-end: 2rem;">
+      <h2>Typography</h2>
+      <h1>Heading 1 (Fluid)</h1>
+      <h2>Heading 2 (Fluid)</h2>
+      <h3>Heading 3 (Fluid)</h3>
+      <p>Body text with default 1.5 line height. <span class="text-muted">This is muted text using utility class.</span></p>
+    </section>
+
+    <!-- Buttons & Badges -->
+    <section class="card" style="margin-block-end: 2rem;">
+      <h2>Buttons & Badges</h2>
+      <div class="flex flex-wrap items-center" style="margin-block-end: 1rem;">
+        <button class="btn">Primary Button</button>
+        <button class="btn btn-outline">Outline Button</button>
+        <a href="#" class="btn">Link Button</a>
+      </div>
+      <div class="flex flex-wrap items-center">
+        <span class="badge">Default Badge</span>
+        <span class="badge" style="border-color: var(--primary); color: var(--primary);">Active Badge</span>
+      </div>
+    </section>
+
+    <!-- Form Inputs -->
+    <section class="card" style="margin-block-end: 2rem;">
+      <h2>Form Inputs</h2>
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div>
+          <label style="display: block; margin-block-end: 0.5rem;">Text Input</label>
+          <input type="text" class="input" placeholder="Enter text...">
+        </div>
+        <div>
+          <label style="display: block; margin-block-end: 0.5rem;">Select Option</label>
+          <select class="select">
+            <option>Option 1</option>
+            <option>Option 2</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Responsive Grid -->
+    <section class="card" style="margin-block-end: 2rem;">
+      <h2>Auto-fit Grid</h2>
+      <div class="grid">
+        <div class="card"><strong>Card 1</strong><p class="text-muted">Auto responsive column.</p></div>
+        <div class="card"><strong>Card 2</strong><p class="text-muted">Auto responsive column.</p></div>
+        <div class="card"><strong>Card 3</strong><p class="text-muted">Auto responsive column.</p></div>
+      </div>
+    </section>
+
+    <!-- Tables -->
+    <section class="card">
+      <h2>Table</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>mmy.min.css</td>
+            <td>Production CSS</td>
+            <td>&lt; 3KB</td>
+          </tr>
+          <tr>
+            <td>mmy.css</td>
+            <td>Unminified CSS</td>
+            <td>~ 5KB</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const btn = document.getElementById('theme-toggle');
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.style.getPropertyValue('color-scheme') === 'dark';
+      document.documentElement.style.setProperty('color-scheme', isDark ? 'light' : 'dark');
+    });
+  </script>
 </body>
 </html>
