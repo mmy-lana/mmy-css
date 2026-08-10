@@ -1,0 +1,21 @@
+/* src/mmy.css */
+
+:root {
+  --mmy-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mmy-primary-color: #3b82f6;
+  --mmy-bg-color: #ffffff;
+  --mmy-text-color: #111827;
+}
+
+*, ::before, ::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--mmy-font-family);
+  background-color: var(--mmy-bg-color);
+  color: var(--mmy-text-color);
+  line-height: 1.5;
+}
