@@ -3,18 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mmy-css — Lightweight CSS Framework</title>
+  <meta name="google-site-verification" content="qO_dHDViRZDQPOOPZNWvgO-sBz_ti5yIX_0GCEB-bfA">
+  <title>mmy-css — Ultra-Lightweight CSS Framework (&lt; 1.2 KB)</title>
+  <meta name="description" content="Ultra-lightweight modern CSS framework under 1.2 KB gzipped with zero-specificity :where() resets, fluid clamp typography, and automatic dark mode.">
+  <meta name="keywords" content="mmy-css, mmy-css github, css framework, lightweight css, zero-specificity, fluid typography, dark mode css, mmy-lana">
+  <meta name="author" content="Muhammad Maulana Yusuf">
+  <link rel="canonical" href="https://mmy-lana.github.io/mmy-css/">
+
+  <!-- OpenGraph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mmy-lana.github.io/mmy-css/">
+  <meta property="og:title" content="mmy-css — Ultra-Lightweight CSS Framework (&lt; 1.2 KB)">
+  <meta property="og:description" content="Ultra-lightweight modern CSS framework under 1.2 KB gzipped with zero-specificity :where() resets and fluid clamp typography.">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="mmy-css — Ultra-Lightweight CSS Framework">
+  <meta name="twitter:description" content="Ultra-lightweight modern CSS framework under 1.2 KB gzipped with zero-specificity :where() resets.">
+
   <link rel="stylesheet" href="./dist/mmy.min.css">
 </head>
 <body>
   <div class="container" style="padding-block: 2rem;">
     <!-- Header -->
-    <header class="flex justify-between items-center" style="margin-block-end: 2rem;">
+    <header class="flex justify-between items-center flex-wrap" style="margin-block-end: 2rem; gap: 1rem;">
       <div class="flex items-center">
         <h1>mmy-css</h1>
-        <span class="badge" style="margin-inline-start: 0.5rem;">&lt; 3KB gzipped</span>
+        <span class="badge" style="margin-inline-start: 0.5rem;">&lt; 1.2 KB gzipped</span>
       </div>
-      <button id="theme-toggle" class="btn btn-outline">Toggle Theme</button>
+      <div class="flex items-center" style="gap: 0.5rem;">
+        <a href="https://github.com/mmy-lana/mmy-css" target="_blank" rel="noopener noreferrer" class="btn btn-outline">🐙 GitHub</a>
+        <a href="https://www.npmjs.com/package/mmy-css" target="_blank" rel="noopener noreferrer" class="btn btn-outline">📦 NPM</a>
+        <button id="theme-toggle" class="btn btn-outline">Toggle Theme</button>
+      </div>
     </header>
 
     <!-- Hero / Installation -->
@@ -81,7 +102,7 @@
     </section>
 
     <!-- Tables -->
-    <section class="card">
+    <section class="card" style="margin-block-end: 2rem;">
       <h2>Table</h2>
       <table class="table">
         <thead>
@@ -95,16 +116,28 @@
           <tr>
             <td>mmy.min.css</td>
             <td>Production CSS</td>
-            <td>&lt; 3KB</td>
+            <td>&lt; 1.2 KB gzipped</td>
           </tr>
           <tr>
             <td>mmy.css</td>
             <td>Unminified CSS</td>
-            <td>~ 5KB</td>
+            <td>~ 3.1 KB</td>
           </tr>
         </tbody>
       </table>
     </section>
+
+    <!-- Footer Link Mesh -->
+    <footer class="flex justify-between items-center flex-wrap" style="padding-block-start: 2rem; border-block-start: 1px solid var(--border); font-size: 0.875rem; color: var(--text-muted); gap: 1rem;">
+      <div>
+        Created by <a href="https://github.com/mmy-lana" target="_blank" rel="noopener noreferrer">@mmy-lana</a>
+      </div>
+      <div class="flex" style="gap: 1rem;">
+        <a href="https://github.com/mmy-lana/mmy-css" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.npmjs.com/package/mmy-css" target="_blank" rel="noopener noreferrer">NPM</a>
+        <a href="https://unpkg.com/mmy-css/dist/mmy.min.css" target="_blank" rel="noopener noreferrer">CDN</a>
+      </div>
+    </footer>
   </div>
 
   <script>
