@@ -1,4 +1,4 @@
-# mmy-css ⚡
+# mmy-css
 
 A modern, ultra-lightweight CSS framework under **1.2 KB gzipped**.
 
@@ -10,20 +10,20 @@ A modern, ultra-lightweight CSS framework under **1.2 KB gzipped**.
 👉 **[View Interactive Live Demo](https://mmy-lana.github.io/mmy-css/)**
 ---
 
-## 🌟 Why mmy-css?
+## Why mmy-css?
 
 Most CSS frameworks ship dozens of kilobytes of unneeded rules. **mmy-css** gives you a responsive layout, modern typography, forms, buttons, cards, tables, and auto dark mode—all in a package smaller than a single icon.
 
-- 📦 **Micro Bundle:** Under 1.2 KB gzipped (~3.1 KB uncompressed).
-- 🚀 **Zero Dependencies & Zero JS:** Pure CSS built on modern web standards.
-- 🎨 **Themeable:** Powered by CSS custom properties (`:root` variables).
-- 🌙 **Automatic Dark Mode:** Out-of-the-box support for `prefers-color-scheme: dark`.
-- 📐 **Zero-Specificity Resets:** Uses `:where()` selectors so you can override styles effortlessly without `!important`.
-- 🔤 **Fluid Typography:** Uses CSS `clamp()` for responsive text scaling across all viewports.
+- **Micro Bundle:** Under 1.2 KB gzipped (~3.1 KB uncompressed).
+- **Zero Dependencies & Zero JS:** Pure CSS built on modern web standards.
+- **Themeable:** Powered by CSS custom properties (`:root` variables).
+- **Automatic Dark Mode:** Out-of-the-box support for `prefers-color-scheme: dark`.
+- **Zero-Specificity Resets:** Uses `:where()` selectors so you can override styles effortlessly without `!important`.
+- **Fluid Typography:** Uses CSS `clamp()` for responsive text scaling across all viewports.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Install via NPM
 
@@ -51,7 +51,7 @@ Drop this single line into the `<head>` of your HTML file:
 
 ---
 
-## 🎨 Design System & Customization
+## Design System & Customization
 
 `mmy-css` uses CSS custom properties for instant re-theming. Override any token in your own stylesheet:
 
@@ -78,7 +78,7 @@ Drop this single line into the `<head>` of your HTML file:
 
 ---
 
-## 📖 Component Examples
+## Component Examples
 
 ### 1. Buttons & Badges
 
@@ -137,7 +137,7 @@ No media queries required! The grid automatically adjusts column counts based on
 
 ---
 
-## 🌙 Dark Mode
+## Dark Mode
 
 Dark mode is **100% automatic** based on the user's system preferences (`prefers-color-scheme`).
 
@@ -151,7 +151,7 @@ document.documentElement.style.setProperty('color-scheme', isDark ? 'light' : 'd
 
 ---
 
-## 🛠️ Local Development
+## Local Development
 
 If you want to contribute or build `mmy-css` locally:
 
@@ -172,6 +172,6 @@ npm run build
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the [MIT License](LICENSE). Created by **Muhammad maulana Yusuf** ([@mmy-lana](https://github.com/mmy-lana)).
